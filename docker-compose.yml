@@ -1,0 +1,22 @@
+version: '3'
+
+services:
+
+  #Database
+  database:
+    image: mongo
+    container_name: hdwallet-mongo
+    ports:
+      - "27018:27018"
+    volumes:
+      - ./hdwallet-data:/data/db
+
+  hdwallet-api:
+    build:
+      context: ./hdwallet-api
+      dockerfile: api.dockerfile
+    container_name: hdwallet-api
+    ports:
+      - "8085:8085"
+    volumes:
+      - ./hdwallet-api:/src
