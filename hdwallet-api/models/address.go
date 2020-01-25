@@ -6,6 +6,6 @@ const (
 )
 
 type Address struct {
-	Key         string // 33 bytes
-	Addr     string // 4 bytes
+	Key      string
+	Addr     string 
 }

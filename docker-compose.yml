@@ -2,21 +2,50 @@ version: '3'
 
 services:
 
-  #Database
-  database:
-    image: mongo
-    container_name: hdwallet-mongo
-    ports:
-      - "27018:27018"
-    volumes:
-      - ./hdwallet-data:/data/db
+    #Mongo Database
+    database:
+        image: mongo
+        container_name: hdwallet-mongo
+        ports:
+          - "27018:27018"
+        volumes:
+          - ./hdwallet-data:/data/db
 
-  hdwallet-api:
-    build:
-      context: ./hdwallet-api
-      dockerfile: api.dockerfile
-    container_name: hdwallet-api
-    ports:
-      - "8085:8085"
-    volumes:
-      - ./hdwallet-api:/src
+    #MySQL Database
+    mysql:
+        image: mysql
+        command: mysqld --character-set-server=utf8 --collation-server=utf8_general_ci
+        environment:
+            - "MYSQL_ROOT_PASSWORD=secret"
+            - "MYSQL_DATABASE=payment"
+        ports:
+            - "3306:3306"
+        volumes:
+            - ./payment-data/data/mysql:/var/lib/mysql
+
+    hdwallet-api:
+        build:
+          context: ./hdwallet-api
+          dockerfile: api.dockerfile
+        container_name: hdwallet-api
+        ports:
+          - "8085:8080"
+        volumes:
+          - ./hdwallet-api:/src
+
+    main-api:
+        build:
+          context: ./main-api
+          dockerfile: api.dockerfile
+        container_name: main-api
+        ports:
+          - "8086:8080"
+        depends_on:
+          - "mysql"
+        links:
+          - "mysql"
+        environment:
+            - "DB_PORT=3306"
+            - "DB_HOST=mysql"
+        volumes:
+          - ./main-api:/src
